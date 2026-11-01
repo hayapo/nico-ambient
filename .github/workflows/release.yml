@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
   publish:
     needs: checks
+    environment: release-approval
     runs-on: ubuntu-latest
     permissions:
       contents: write
