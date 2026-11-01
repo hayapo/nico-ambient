@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Nico Ambient",
+  "version": "0.0.1",
+  "description": "Nico Ambient ブラウザ拡張機能",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.nicovideo.jp/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "Nico Ambient",
+    "default_popup": "index.html"
+  }
+}
