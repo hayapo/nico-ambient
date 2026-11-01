@@ -1,0 +1,149 @@
+[data-nico-ambient-active],
+[data-nico-ambient-backdrop],
+[data-nico-ambient-effects] {
+  --nico-surface-blur: 48px;
+  --nico-soft-blur: 6px;
+  --nico-playing-blur: 32px;
+  --nico-saturation: 1.15;
+  --nico-readable-text: #f4f4f4;
+  --nico-text-shadow: 0 1px 2px rgb(0 0 0 / 85%), 0 0 4px rgb(0 0 0 / 65%);
+  --nico-outline: rgb(244 244 244 / 48%);
+  --nico-playing-tint: rgb(0 0 0 / 12%);
+}
+[data-nico-ambient-active] {
+  isolation: isolate !important;
+  --colors-text-on-layer-visited: color-mix(
+    in srgb,
+    var(--colors-text-on-layer-high-em) 50%,
+    #c4a8ff
+  ) !important;
+}
+[data-nico-ambient-backdrop="clear"],
+[data-nico-ambient-effects~="clear-pseudos"]::before,
+[data-nico-ambient-effects~="clear-pseudos"]::after {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+[data-nico-ambient-backdrop="surface"] {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--nico-surface-blur))
+    saturate(var(--nico-saturation));
+  backdrop-filter: blur(var(--nico-surface-blur))
+    saturate(var(--nico-saturation));
+}
+[data-nico-ambient-backdrop="soft"] {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--nico-soft-blur))
+    saturate(var(--nico-saturation)) !important;
+  backdrop-filter: blur(var(--nico-soft-blur)) saturate(var(--nico-saturation)) !important;
+}
+[data-scope="tabs"][data-part="list"]
+  [data-part="trigger"][data-nico-ambient-backdrop] {
+  color: var(--nico-readable-text) !important;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 4px rgb(0 0 0 / 65%) !important;
+}
+[data-element-name="featured_comment_button_click"][data-nico-ambient-backdrop] {
+  color: var(--nico-readable-text) !important;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 4px rgb(0 0 0 / 65%) !important;
+  box-shadow: inset 0 0 0 1px var(--nico-outline) !important;
+}
+[data-scope="tabs"][data-part="list"]
+  [data-part="trigger"][aria-selected="true"][data-nico-ambient-backdrop="surface"] {
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px var(--nico-outline) !important;
+}
+[data-nico-ambient-active]
+  [data-anchor-area="playlist"][data-group="true"][data-playing="true"] {
+  background-color: var(--nico-playing-tint) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--nico-playing-blur))
+    saturate(var(--nico-saturation)) !important;
+  backdrop-filter: blur(var(--nico-playing-blur))
+    saturate(var(--nico-saturation)) !important;
+}
+[data-nico-ambient-effects~="divider"] {
+  border-left-color: rgb(204 204 204 / 22%) !important;
+}
+[data-nico-ambient-effects~="overlay"] {
+  z-index: var(--z-index-forward2, 2) !important;
+}
+[data-nico-ambient-effects~="panel-divider"] {
+  border-top-color: transparent !important;
+}
+[data-nico-ambient-active] [class~="fill_icon.baseDisabled"] {
+  fill: var(--colors-icon-base) !important;
+}
+[data-nico-ambient-active] [class~="c_action.textOnBase_disabled"] {
+  color: var(--colors-text-on-layer-high-em) !important;
+}
+[data-nico-ambient-active]
+  [class~="grid-area_[bottom]"]
+  h1[class~="fs_xl"][class~="fw_bold"] {
+  color: var(--nico-readable-text) !important;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 4px rgb(0 0 0 / 65%) !important;
+}
+[data-nico-ambient-active]
+  [class~="grid-area_[bottom]"]
+  a[data-anchor-area="video_information"][href^="/user/"] {
+  color: var(--nico-readable-text) !important;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 4px rgb(0 0 0 / 65%) !important;
+}
+[data-nico-ambient-effects~="no-box-shadow"],
+[data-nico-ambient-effects~="no-box-shadow"]::before,
+[data-nico-ambient-effects~="no-box-shadow"]::after,
+[data-nico-ambient-effects~="no-filter"],
+[data-nico-ambient-effects~="no-filter"]::before,
+[data-nico-ambient-effects~="no-filter"]::after {
+  box-shadow: none !important;
+}
+[data-nico-ambient-effects~="no-filter"],
+[data-nico-ambient-effects~="no-filter"]::before,
+[data-nico-ambient-effects~="no-filter"]::after {
+  filter: none !important;
+}
+[data-nico-ambient-effects~="header-links"],
+[data-nico-ambient-effects~="header-links"]::before,
+[data-nico-ambient-effects~="header-links"]::after {
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+[data-nico-ambient-active]
+  :is(
+    header[class~="h_webHeader.height"],
+    #PcHeader,
+    #pc-header,
+    .pc-header,
+    .pcHeader,
+    .PCHeader
+  ) {
+  box-shadow: none !important;
+}
+[data-nico-ambient-effects~="header-links"]
+  :has(> a[href*="header_tvchan_icon"])
+  > a,
+[data-nico-ambient-effects~="header-links"]
+  :has(> a[href*="header_tvchan_icon"])
+  > div
+  > div:has(> svg) {
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 4px rgb(0 0 0 / 65%) !important;
+}
+[data-nico-ambient-effects~="header-links"]
+  :has(> a[href*="header_tvchan_icon"])
+  > div
+  > div
+  > svg {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 85%)) !important;
+}
