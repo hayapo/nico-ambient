@@ -29,3 +29,28 @@ p {
   color: #94a3b8;
   font-size: 12px;
 }
+
+.project-links {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #475569;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.project-links p {
+  margin: 8px 0;
+  font-size: inherit;
+}
+
+.project-links a {
+  color: #a7b8c9;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+.project-links a:hover,
+.project-links a:focus-visible {
+  color: #d5e3ee;
+}
