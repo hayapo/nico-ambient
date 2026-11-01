@@ -42,7 +42,7 @@ jobs:
             git add package.json public/manifest.json
             git commit -m "chore: prepare release v$VERSION"
             git push origin HEAD:develop
-            gh pr create --base main --head develop --title "Release v$VERSION" --body "バージョン一致チェックとCIを確認し、承認後にマージしてください。"
+            gh pr create --base main --head develop --title "Release v$VERSION" --body "バージョン一致チェックとCIの成功を確認し、問題なければマージしてください。リリース公開はマージ後にEnvironmentで承認します。"
           else
             VERSION=$(node scripts/version.mjs)
             gh pr edit "$PR" --title "Release v$VERSION"

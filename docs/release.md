@@ -5,7 +5,7 @@
 ## 初期設定
 
 - mainとdevelopをGitHubに作成してください。mainの直接pushを禁止し、PRとCIのchecksジョブを必須にしてください。リリース承認はPRではなくEnvironmentで行うため、mainのブランチルールでPR承認を必須にする必要はありません。
-- Repository Settings → Environmentsで`release-approval` Environmentを作り、Required reviewersにリリースを承認する人を指定してください。Prevent self-reviewも有効にできます。設定しない場合、公開ジョブは承認待ちにならず続行します。
+- Repository Settings → Environmentsで`release-approval` Environmentを作り、Required reviewersにリリースを承認する人を指定してください。単独運用で自分が承認する場合はPrevent self-reviewを有効にしないでください。設定しない場合、公開ジョブは承認待ちにならず続行します。
 - developへのバージョン更新pushをトークンの所有者が行えるよう、ブランチ保護と権限を設定してください。
 
 ## リリース
