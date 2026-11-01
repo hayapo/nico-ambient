@@ -25,6 +25,12 @@ WebKitのテストはSafari本体やSafari拡張機能の動作保証ではあ�
 
 ## インストール
 
+### ブラウザーの拡張機能ストアからインストール
+
+Chromeでは[Chrome ウェブストア](https://chromewebstore.google.com/)、Edgeでは[Microsoft Edge アドオン](https://microsoftedge.microsoft.com/addons/)で「Nico Ambient」を検索し、拡張機能のページからインストールします。
+
+現在、どちらのストアにも未公開です。公開後に各ストアの拡張機能ページへのリンクを追加します。現時点では以下のGitHub Releasesからインストールしてください。
+
 ### リリースからインストール
 
 公開済みのバージョンは、GitHubの[Releases](../../releases)からZIPをダウンロードできます。
