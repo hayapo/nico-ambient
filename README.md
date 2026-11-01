@@ -1,114 +1,130 @@
 # Nico Ambient
 
-Vite + TypeScriptで開発する、Chrome / Edge向けManifest V3拡張機能です。
-`https://www.nicovideo.jp/watch/<動画ID>` の動画の四辺の色をぼかし、プレイヤーの外側から画面全体へアンビエントライトを表示します。文字やコンポーネントより背面に配置し、カード自身の背景は維持します。
+ニコニコ動画のプレイヤー周辺に、映像の四辺の色を広げるアンビエントライトを表示するブラウザー拡張機能です。ChromeとMicrosoft Edgeに対応するManifest V3拡張機能として開発しています。
 
-プレイヤーの全画面ボタンと同じコントロール列に追加される「☀」から、有効／無効・明るさ・広がりを変更できます。設定はChromeのローカルストレージに保存します。「広がり」は0〜400%で調整でき、未保存時の初期値は200%です。100%はプレイヤーの短辺と同じ距離まで各辺から光を広げ、外側ほど減衰します。0%では描画と親要素の背景透過を解除し、通常の視聴表示に戻します。保存済みの値は範囲内で引き継ぎます。
-映像とコメント、プレイヤー操作部分には光を重ねず、光のレイヤーはクリックを妨げません。
-設定パネルはプレイヤーの外側に配置し、下に十分な空間がない場合は上側に表示します。開いている間はリサイズ・スクロール・レイアウト変更に追従します。
-`common-header`要素・同名のID／クラス、`#CommonHeader`、`.nico-CommonHeaderRoot`、`header`、`role="banner"`、`data-name="header"`の背景と、その中の検索欄までの背景を透過します。入力欄自身の背景は保持し、無効化・ページ遷移時には元に戻します。実サイトのヘッダーDOMへの適合は未確認です。
+## 機能
 
-## セットアップ
+- プレイヤー映像の周縁色をサンプリングし、プレイヤーの外側へ広げて表示
+- 明るさと広がりを調整し、設定をブラウザーに保存
+- コメントやプレイヤー操作を妨げない背景レイヤー
+- ページ内遷移に対応し、対象ページを離れると追加した表示を後片付け
 
-Node.js 24系とpnpm 10系を使用します。
+対象ページは`https://www.nicovideo.jp/watch/...`です。ページのDOM変更や動画の保護方式によって、動作しない場合があります。
+
+## 対応ブラウザー
+
+| ブラウザー | サポート状況 | 自動テスト環境 |
+| --- | --- | --- |
+| Google Chrome（デスクトップ） | 配布対象 | Chrome Stable（`chrome`） |
+| Microsoft Edge（デスクトップ） | 配布対象 | Edge Stable（`msedge`） |
+| Chromium | 開発時の基準環境 | Playwright Chromium（`chromium`） |
+| Firefox | 正式サポート対象外・互換性検証中 | Playwright Firefox（`firefox`） |
+| Safari | 正式サポート対象外・互換性検証中 | Playwright WebKit（`webkit`） |
+
+WebKitのテストはSafari本体やSafari拡張機能の動作保証ではありません。Firefox・Safariへの配布には、それぞれの実ブラウザーで拡張機能の読み込みと権限を確認する必要があります。
+
+## インストール
+
+### リリースからインストール
+
+公開済みのバージョンは、GitHubの[Releases](../../releases)からZIPをダウンロードできます。
+
+1. ZIPを展開します。
+2. Chromeで`chrome://extensions`、Edgeで`edge://extensions`を開きます。
+3. デベロッパーモードを有効にします。
+4. 「パッケージ化されていない拡張機能を読み込む」を選び、展開したフォルダーを指定します。
+
+### ソースからビルド
+
+Node.js 26とpnpm 10を用意し、リポジトリのルートで実行します。
 
 ```sh
-pnpm install
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+生成された`dist/`を、上記の手順で拡張機能として読み込みます。
+
+## 使い方
+
+ニコニコ動画の視聴ページを開き、プレイヤーのコントローラーにある太陽アイコンから設定を開きます。有効・無効、明るさ、広がりを調整できます。設定は自動的に保存されます。
+
+## 開発
+
+```sh
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-`pnpm dev`は`dist/`に拡張機能をビルドし、ソース変更を監視します。
+`pnpm dev`は`dist/`を監視ビルドします。開発版をブラウザーに読み込んだ後、ソース変更時は拡張機能を再読み込みしてください。コンテンツスクリプトの変更を反映するには、視聴ページも再読み込みします。
 
-1. Chromeで`chrome://extensions`（Edgeでは`edge://extensions`）を開きます。
-2. 「デベロッパーモード」を有効にします。
-3. 「パッケージ化されていない拡張機能を読み込む」から、このプロジェクトの`dist/`を選びます。
-4. ニコニコ動画の視聴ページを開き、動画を再生します。
-5. プレイヤー内の「☀」を押すと設定が開きます。ツールバーの拡張機能アイコンは使い方の案内を表示します。
+主なコマンド：
 
-変更後はビルド完了を待ち、拡張機能の管理画面で再読み込みしてからポップアップを開き直してください。
-拡張機能の自動再読み込みは行いません。変更したコンテンツスクリプトを反映するため、視聴ページも再読み込みしてください。
-
-## コマンド
-
-| コマンド | 用途 |
+| コマンド | 内容 |
 | --- | --- |
-| `pnpm lint` | Biomeでlint |
-| `pnpm lint:fix` | lintの安全な自動修正 |
-| `pnpm format` | Biomeで整形 |
-| `pnpm format:check` | 整形済みか確認（変更なし） |
-| `pnpm check` | lint・書式・import順をまとめて確認 |
-| `pnpm check:fix` | lintの安全な修正・整形・import整理 |
-| `pnpm dev` | 拡張機能の監視ビルド |
-| `pnpm dev:ui` | ポップアップUIの開発サーバー（HMR対応） |
+| `pnpm check` | Biomeのlint・format確認 |
 | `pnpm typecheck` | TypeScriptの型チェック |
-| `pnpm build` | 型チェックと配布用ビルド |
-| `pnpm preview` | ビルド済みUIのプレビュー |
-| `pnpm test` | 型チェック・ビルド・模擬DOMでのライフサイクルテスト |
-| `pnpm test:browser` | 模擬視聴ページでのChromiumテスト |
+| `pnpm build` | 型チェックと本番ビルド |
+| `pnpm test` | ビルドとNode.jsテスト |
+| `pnpm test:node` | ビルド済みの成果物に対してNode.jsテストを実行 |
+| `pnpm test:browser:install` | 5プロジェクト用のブラウザーとLinuxの実行依存を導入 |
+| `pnpm test:browser` | ビルドとPlaywright Chromiumテスト |
+| `pnpm test:browser:all` | ビルドと全5プロジェクトのテスト |
 
-`dev:ui`と`preview`は通常のWebページとしての表示です。拡張機能APIの確認には`dist/`をブラウザに読み込んでください。
-監視ビルドでは型チェックを実行しないため、必要に応じて`pnpm typecheck`を実行してください。
+ブラウザーテストの初回実行前に、必要なブラウザーをインストールします。Chromiumだけで確認する場合は次のコマンドで十分です。
 
-lintとformatにはBiomeを使用します。設定は`biome.json`で管理し、推奨lintルール、スペース2文字、JavaScript／TypeScriptのシングルクォートを使用します。
-`node_modules/`、`dist/`、テスト結果などの生成物はチェック対象外です。変更後は`pnpm check`と`pnpm test`で確認してください。
-Biomeのバージョンは固定し、`pnpm-lock.yaml`で依存関係を揃えます。
+```sh
+pnpm exec playwright install --with-deps chromium
+```
 
-## 構成
+既存のChromiumを使う場合は、`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`で実行ファイルを指定できます。テストは模擬ページを使うため、実際のニコニコ動画上での表示確認も必要です。
 
-- `public/manifest.json`: 拡張機能の設定。ビルド時に`dist/`へコピーされます。
-- `src/index.html`: ポップアップのHTML。
-- `src/scripts/popup.ts`: ポップアップの処理。
-- `src/styles/popup.css`: ポップアップのスタイル。
-- `src/styles/settings.css`: プレイヤー内の設定パネルのスタイル。
-- `src/scripts/content.ts`: 起動とページ遷移時のライフサイクル管理。
-- `src/scripts/player.ts`: プレイヤー検出。
-- `src/scripts/mount-player.ts`: 設定パネルと描画の組み立て・後片付け。
-- `src/scripts/settings.ts`: 設定値の正規化と保存。
-- `src/scripts/settings-panel.ts`: 設定パネルのUIと操作。
-- `src/scripts/ambient-light.ts`: アンビエントライトの描画。
-- `src/scripts/page-backdrop.ts`: 背面レイヤーの重なり順と親要素の背景透過・復元。
-- `vite.config.ts`: Viteの設定。`src/`をルートとし、`public/`のManifestとともに`dist/`へ出力します。
+### ブラウザー互換性テスト
 
-描画・ページ背景・設定UIは、それぞれ `AmbientLight`、`PageBackdrop`、`SettingsPanel` クラスが状態と後片付けを管理します。`mountPlayer()` がインスタンスを組み立て、ページ遷移時には `destroy()` で破棄します。プレイヤー検出、設定値の正規化、縁色の生成は関数として分離しています。
+通常の確認には`pnpm test:browser`（Chromium）を使用します。全環境を確認する場合は、必要なブラウザーを導入してから実行します。
 
-設定パネルのCSSは`?inline`で文字列として読み込み、Shadow DOM内に適用します。スクリプトはソースではモジュール分割し、コンテンツスクリプトはビルド時に`dist/content.js`へまとめます。
+```sh
+pnpm test:browser:install
+pnpm test:browser:all
+```
 
-ブラウザAPIの型定義は`@types/chrome`を使用します。権限は設定保存用の`storage`のみで、コンテンツスクリプトの対象ホストは`www.nicovideo.jp`だけです。
-サイト内遷移で視聴ページに入る場合にも対応するため、同ホストの全パスで待機し、`/watch/<動画ID>`だけでUIと描画を開始します。
-拡張機能のバージョンを変更するときは、`package.json`と`public/manifest.json`を更新してください。
+この導入コマンドはChromium・Firefox・WebKitの実行依存を導入し、Chrome・Edgeもインストールします。Linuxのシステム依存の導入には管理者権限が必要な場合があります。Chrome・EdgeのインストールはOSの標準配置先を使うため、既存のインストールを置き換える場合があります。[Playwrightのブラウザー設定](https://playwright.dev/docs/browsers)
 
-## 検証と制約
+特定のブラウザーだけを確認する場合は、ビルド後にプロジェクトを指定します。
 
-ブラウザテストの初回実行前に`pnpm exec playwright install chromium`を実行してください。
-既存のChromiumを使う場合は`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`で実行ファイルを指定できます。
-テストでは模擬ページと動画、ストレージを使用します。実際の拡張機能の読み込みやニコニコ動画との接続は別途確認が必要です。
+```sh
+pnpm build
+pnpm exec playwright test --project=chrome
+# 複数指定も可能
+pnpm exec playwright test --project=firefox --project=webkit
+```
 
-- 実装時の環境では実サイトの取得とChromiumの起動が制限されたため、実サイト上の表示とブラウザテストは未検証です。型チェック・ビルド・模擬DOMテストは確認済みです。
-- プレイヤーは動画要素と全画面ボタンのラベルを手掛かりに検出します。サイトのDOMが変更された場合は`src/scripts/player.ts`の検出処理を調整してください。
-- 描画は最大24fps、96×64のCanvasを使用します。非表示タブでは描画を休止します。プレイヤーが画面外に出ても光は距離に応じて減衰し、突然表示を切り替えません。
-- 動画の画素を読み出さず、Canvasへ直接四辺を描画します。保護された動画など、ブラウザが描画を許可しない場合は光が出ないことがあります。
-- 全画面でプレイヤーが画面全体を占める場合、プレイヤー外に表示領域がないため光は見えません。
+指定できるプロジェクトは`chromium`、`chrome`、`msedge`、`firefox`、`webkit`です。Chrome・Edgeはインストール済みのStable版、Firefox・WebKitはPlaywright管理のビルドを使用します。`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`はChromiumだけに適用されます。ブラウザーが未導入の場合は失敗します。
 
-## 参考
+ブラウザーテストは5プロジェクトで同じ8件のテストを実行します。
 
-- [Vite公式ガイド](https://vite.dev/guide/)
-- [Chrome拡張機能のManifest](https://developer.chrome.com/docs/extensions/reference/manifest)
+| テストファイル | 確認する内容 |
+| --- | --- |
+| `tests/browser/settings.spec.ts` | 設定ボタン、明るさ・広がりの変更と保存 |
+| `tests/browser/lifecycle.spec.ts` | 視聴ページでの起動、ページ内遷移時の破棄と再接続、対象外ホスト |
+| `tests/browser/rendering.spec.ts` | 映像周縁の色、ライトの不透明性、映像位置に沿うマスクと画面合成 |
+| `tests/browser/backdrop.spec.ts` | 背景ロール、疑似要素、全画面時の祖先判定と復元 |
 
-共通ヘッダー内部の幅広・高さ120px以下の背景ラッパーも透過対象です。生成クラス名のハッシュには依存せず、メニュー・入力欄・ボタンは対象から除外します。
+テストでは模擬視聴ページ、Canvasから生成した動画、模擬した拡張機能ストレージを使います。Manifestからの実際の読み込み、権限、ニコニコ動画の実ページでの動作は別途確認が必要です。
 
-### 内部構成
+実行結果は`pnpm exec playwright show-report`で確認できます。失敗時にはスクリーンショットとtraceを保存します。
 
-- `page-backdrop.ts`: DOM変更の監視、適用範囲、元の属性・スタイルの復元。
-- `backdrop/appearance.ts`: 背景と効果の合成、属性の差分更新、四隅の角丸の保存・復元。
-- `backdrop/collectors.ts` / `header.ts` / `selectors.ts`: ページ部品とヘッダーの判定。
-- `styles/page-backdrop.css`: 背景、文字色、影。ぼかしなどの調整値はCSS変数。
-- `light-geometry.ts`: 光の領域・マスク・描画座標の計算。動画とポスターの切り替えは `AmbientLight` が管理。
-- `settings-panel-template.ts` / `panel-position.ts`: 設定UIと配置計算。入力範囲は `settings.ts` の `NUMERIC_SETTINGS` を共有。
+## プロジェクト構成
 
-背景属性は `data-nico-ambient-backdrop="clear|surface|soft"`。
-有効なルートは `data-nico-ambient-active`、影の除去などは
-`data-nico-ambient-effects` の空白区切りトークンで表します。
-収集順による背景の上書きと未分類時だけの補完を区別し、効果は併存します。
-全画面時はそのルートの外側の属性・スタイルを復元します。
-背景検出によって透明化した履歴は内部状態に保持し、見た目の `clear` と区別します。
-テスト用のモジュールは `tests/helpers/bundle.mjs` でIIFEにビルドし、依存の差し替えはViteプラグインで行います。
+- `src/scripts/ambient-light.ts`: 映像周縁の取得とライト描画
+- `src/scripts/page-backdrop.ts`: ページ背景の判定、スタイル適用、復元
+- `src/scripts/content.ts`: 視聴ページの検出とライフサイクル管理
+- `src/scripts/settings.ts`: 設定値の検証と保存
+- `public/manifest.json`: 拡張機能のManifest
+- `tests/`: Node.jsとPlaywrightによるテスト
+
+詳細な設計は[`docs/nico-ambient.md`](docs/nico-ambient.md)、テストの分類と個別の実行方法は[`tests/README.md`](tests/README.md)を参照してください。
+
+## ライセンス
+
+このプロジェクトのソースコードは[MIT License](LICENSE)で公開しています。

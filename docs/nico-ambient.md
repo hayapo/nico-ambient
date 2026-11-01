@@ -437,19 +437,33 @@ content.ts
 
 | ファイル                     | 主な確認対象                      |
 | ------------------------ | --------------------------- |
-| `build.test.mjs`         | Manifest の参照先とコンテンツスクリプトの形式 |
-| `edge-field.test.mjs`    | 中央色の混入防止、辺の方向、不透明性          |
-| `startup.test.mjs`       | 遅れて追加されるプレイヤーの検出            |
-| `loading-light.test.mjs` | ポスターから動画への切り替え、シーク中の光の保持    |
-| `page-backdrop.test.mjs` | ロール適用・除外・復元・影の維持            |
-| `lifecycle.test.mjs`     | 起動、設定、ページ遷移、配置、破棄           |
-| `ambient.spec.ts`        | Playwright によるブラウザ上の描画・操作確認 |
-| `backdrop.spec.ts` | 背景履歴の安定性、全画面ルートでの祖先判定・復元 |
-| `helpers/bundle.mjs` | Viteでソースをテスト用IIFEに束ね、必要な依存を差し替える |
+| `tests/node/build.test.mjs`         | Manifest の参照先とコンテンツスクリプトの形式 |
+| `tests/node/edge-field.test.mjs`    | 中央色の混入防止、辺の方向、不透明性          |
+| `tests/node/startup.test.mjs`       | 遅れて追加されるプレイヤーの検出            |
+| `tests/node/loading-light.test.mjs` | ポスターから動画への切り替え、シーク中の光の保持    |
+| `tests/node/page-backdrop.test.mjs` | ロール適用・除外・復元・影の維持            |
+| `tests/node/lifecycle.test.mjs`     | 起動、設定、ページ遷移、配置、破棄           |
+| `tests/browser/settings.spec.ts` | 設定ボタン、変更と保存 |
+| `tests/browser/lifecycle.spec.ts` | ページ内遷移、再接続、対象外ホスト |
+| `tests/browser/rendering.spec.ts` | 映像周縁の色、不透明性、マスクと画面合成 |
+| `tests/browser/backdrop.spec.ts` | 背景履歴、全画面ルートでの祖先判定・復元 |
+| `tests/helpers/bundle.mjs` | Viteでソースをテスト用IIFEに束ね、必要な依存を差し替える |
 
-### PlaywrightでChromiumを使うテスト
+### Playwrightによるブラウザーテスト
 
-`playwright.config.ts` は `tests/*.spec.ts` をChromiumで実行します。通常はPlaywrightが管理するChromiumを使います。別の実行ファイルを使う場合は `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` を設定できます。
+`playwright.config.ts` は `tests/browser/*.spec.ts` を実行します。各プロジェクトで同じ8件のテストを実行し、全5プロジェクトで40件になります。
+
+| プロジェクト | 使用するブラウザー | サポート状況 |
+| --- | --- | --- |
+| `chromium` | Playwright Chromiumまたは指定した実行ファイル | 開発時の基準環境 |
+| `chrome` | Google Chrome Stable | デスクトップ版の配布対象 |
+| `msedge` | Microsoft Edge Stable | デスクトップ版の配布対象 |
+| `firefox` | Playwright Firefox | 正式サポート対象外・互換性検証中 |
+| `webkit` | Playwright WebKit | Safari系の描画確認。Safari本体は正式サポート対象外 |
+
+`pnpm test:browser` はChromiumだけ、`pnpm test:browser:all` は5プロジェクトすべてを実行します。通常はPlaywrightが管理するChromiumを使い、`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` はChromiumプロジェクトだけに適用されます。
+
+全プロジェクトの実行前には `pnpm test:browser:install` でブラウザーとLinuxの実行依存を導入します。Chrome・EdgeはOSの標準配置先にインストールされるため、既存のインストールが置き換わる場合があります。
 
 初回はChromiumを導入し、その後ブラウザテストを実行します。`test:browser` は型チェックとViteビルドを行ってからPlaywrightを起動するため、`dist/content.js` は最新の状態になります。
 
@@ -458,8 +472,10 @@ pnpm exec playwright install chromium
 pnpm test:browser
 ```
 
-`ambient.spec.ts` はニコニコ動画の視聴ページをテスト用HTMLに差し替え、Canvasから作った動画ストリームを再生して `dist/content.js` を読み込みます。設定ボタンの追加と保存、ページ内遷移時の破棄・再接続、対象外ホストでの非起動を確認します。ライト用Canvasの画素と実際の画面合成も調べ、明るい中心を持つ暗い映像で周縁の光が白くならないことをライト・ダーク両背景で確認します。動画を囲む余白ではなく映像の矩形にマスクが合うことも確認します。Canvasの内容を変えた後は `requestFrame()` でフレームを送り、動画へ反映されたことを待ってから光の画素を検査します。
+`browser/helpers/player.ts` はニコニコ動画の視聴ページをテスト用HTMLに差し替え、Canvasから作った動画ストリームを再生して `dist/content.js` を読み込みます。設定ボタンの追加と保存、ページ内遷移時の破棄・再接続、対象外ホストでの非起動を確認します。ライト用Canvasの画素と実際の画面合成も調べ、明るい中心を持つ暗い映像で周縁の光が白くならないことをライト・ダーク両背景で確認します。動画を囲む余白ではなく映像の矩形にマスクが合うことも確認します。Canvasの内容を変えた後は `requestFrame()` でフレームを送り、動画へ反映されたことを待ってから光の画素を検査します。
 
-`backdrop.spec.ts` は `PageBackdrop` をテスト用IIFEとしてChromiumへ読み込みます。背景属性が `surface` に変わっても疑似要素の透明化と背景検出の履歴が安定すること、全画面ルート外のsurfaceが内側の分類に影響しないこと、通常表示に戻した後と破棄時に属性が復元されることを確認します。
+`tests/browser/backdrop.spec.ts` は `PageBackdrop` をテスト用IIFEとして各ブラウザープロジェクトへ読み込みます。背景属性が `surface` に変わっても疑似要素の透明化と背景検出の履歴が安定すること、全画面ルート外のsurfaceが内側の分類に影響しないこと、通常表示に戻した後と破棄時に属性が復元されることを確認します。
+
+テストには模擬視聴ページ、Canvasから生成した動画、模擬した拡張機能ストレージを使います。Manifestからの実際の読み込みや権限、ニコニコ動画の実ページでの動作は検証対象外です。WebKitはSafari本体ではないため、Firefox・Safari版拡張機能を正式にサポートするには、それぞれの実ブラウザーで追加の確認が必要です。
 
 設計を変更するとき、サイトのDOM変更への対応は主に `player.ts` と `backdrop/collectors.ts`・`header.ts`・`selectors.ts`、背景属性の合成は `backdrop/appearance.ts`、光の距離と配置は `light-geometry.ts`、光の色は `edge-field.ts`、描画タイミングとシーク処理は `AmbientLight`、設定操作は `SettingsPanel` が変更箇所になります。
