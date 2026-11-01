@@ -5,7 +5,6 @@
 ## 初期設定
 
 - mainとdevelopをGitHubに作成してください。mainの直接pushを禁止し、PR承認とCIのchecksジョブを必須にしてください。
-- リポジトリSecretに`RELEASE_PR_TOKEN`を登録してください。対象リポジトリへのContentsとPull requestsの書き込み権限を持つfine-grained PATを使います。通常のGITHUB_TOKENで作ったPRでは後続のCIが起動しないためです。
 - developへのバージョン更新pushをトークンの所有者が行えるよう、ブランチ保護と権限を設定してください。
 
 ## リリース
@@ -13,8 +12,8 @@
 1. ActionsのPrepare releaseを開き、実行ブランチにdevelopを選びます。
 2. major・minor・patchを選びます。patchは以前の計画のminor-minorに相当します。
 3. package.jsonとpublic/manifest.jsonを同時更新するコミットがdevelopに追加され、main向けPRが作成されます。
-4. 既存のリリースPRがある場合はバージョンを再更新せず、タイトルを同期します。developへの追加コミットは同じPRに反映されます。
-5. CI成功を確認し、人が承認・マージします。継続的にdevelopからmainへマージするため、マージコミットを使用してください。
+4. `GITHUB_TOKEN`でPRを作成するため、PRのCIはGitHubの承認待ちになります。Actions画面またはPRの表示からワークフローを承認すると、CIが実行されます。既存のリリースPRがある場合はバージョンを再更新せず、タイトルを同期します。developへの追加コミットは同じPRに反映されます。
+5. CI成功を確認し、人がPRを承認・マージします。継続的にdevelopからmainへマージするため、マージコミットを使用してください。
 6. Releaseワークフローが`vX.Y.Z`タグ、`nico-ambient-X.Y.Z.zip`、GitHub Releaseを作成します。
 
 CIはバージョン一致、Biome、型チェック・ビルド、Node.jsテスト、5ブラウザープロジェクトを確認します。WebKitは現在ポスター画像による描画検証であり、動画ストリームの検証ではありません。
