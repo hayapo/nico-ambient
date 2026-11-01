@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { Window } from 'happy-dom';
-import { bundle } from './helpers/bundle.mjs';
+import { bundle } from '../helpers/bundle.mjs';
 
 const source = await bundle('src/scripts/page-backdrop.ts', 'PageBackdrop', {});
 

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 // @ts-expect-error テスト用ヘルパーはJavaScriptで記述している。
-import { bundle } from './helpers/bundle.mjs';
+import { bundle } from '../helpers/bundle.mjs';
 
 let script: string;
 test.beforeAll(async () => {

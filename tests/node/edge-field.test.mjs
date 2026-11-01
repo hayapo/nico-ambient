@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createEdgeField } from '../src/scripts/edge-field.ts';
+import { createEdgeField } from '../../src/scripts/edge-field.ts';
 
 test('edge projection has no alpha hole or center-color contamination at any spread', () => {
   const source = new Uint8ClampedArray(96 * 64 * 4);

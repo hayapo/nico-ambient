@@ -14,13 +14,16 @@
     "format:check": "biome format .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "test": "pnpm build && node --test tests/*.test.mjs",
-    "test:browser": "pnpm build && playwright test",
+    "test": "pnpm build && pnpm test:node",
+    "test:browser:install": "playwright install --with-deps chromium firefox webkit && playwright install chrome msedge",
+    "test:browser": "pnpm build && playwright test --project=chromium",
+    "test:browser:all": "pnpm build && playwright test",
     "dev": "vite build --watch --mode development",
     "dev:ui": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "build": "pnpm typecheck && vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "test:node": "node --test tests/node/*.test.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
