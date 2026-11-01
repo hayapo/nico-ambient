@@ -1,0 +1,46 @@
+name: Prepare release
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'SemVer更新（patch = minor-minor）'
+        type: choice
+        options: [patch, minor, major]
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ secrets.RELEASE_PR_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - name: Update version and release PR
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          PR=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then
+            VERSION=$(node scripts/version.mjs "$BUMP")
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add package.json public/manifest.json
+            git commit -m "chore: prepare release v$VERSION"
+            git push origin HEAD:develop
+            gh pr create --base main --head develop --title "Release v$VERSION" --body "バージョン一致チェックとCIを確認し、承認後にマージしてください。"
+          else
+            VERSION=$(node scripts/version.mjs)
+            gh pr edit "$PR" --title "Release v$VERSION"
+          fi

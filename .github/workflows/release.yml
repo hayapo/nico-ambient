@@ -1,0 +1,51 @@
+name: Release
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: pnpm
+      - name: Setup Aikido Safe Chain
+        uses: ./.github/actions/setup-safe-chain
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Publish matching tag and ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node scripts/version.mjs)
+          TAG="v$VERSION"
+          test "$(node -p "JSON.parse(require('fs').readFileSync('dist/manifest.json')).version")" = "$VERSION"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA"
+          else
+            git tag "$TAG" "$GITHUB_SHA"
+            git push origin "$TAG"
+          fi
+          ARCHIVE="nico-ambient-$VERSION.zip"
+          (cd dist && zip -r "../$ARCHIVE" . -x '*.map')
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --verify-tag --draft --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" "$ARCHIVE" --clobber
+          gh release edit "$TAG" --draft=false
