@@ -1,0 +1,36 @@
+name: Verify release integrity consumer
+on:
+  workflow_call:
+    inputs:
+      sha256:
+        required: true
+        type: string
+      artifact:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact }}
+          path: integrity-artifact
+      - name: Verify the hash passed by the successful upstream job
+        env:
+          RELEASE_SHA256: ${{ inputs.sha256 }}
+          RELEASE_ARCHIVE: integrity-artifact/integrity.zip
+        run: node scripts/verify-release-hash.mjs
+      - name: Fail only the first attempt to exercise partial retries
+        if: github.run_attempt == 1
+        run: |
+          echo 'Intentional failure: use Re-run failed jobs without rerunning prepare.'
+          exit 1
+      - name: Confirm partial retry
+        run: echo 'Hash verification succeeded on retry. Confirm prepare was not rerun.' >> "$GITHUB_STEP_SUMMARY"

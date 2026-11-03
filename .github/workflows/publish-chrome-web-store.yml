@@ -1,0 +1,61 @@
+name: publish-chrome-web-store
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Version of the existing GitHub Release to submit
+        required: true
+        type: string
+      sha256:
+        description: SHA-256 of the verified release ZIP
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  submit:
+    if: github.ref == 'refs/heads/main'
+    environment: release-approval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+      - name: Download the existing release package
+        id: package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          ARCHIVE="nico-ambient-$RELEASE_VERSION.zip"
+          gh release download "v$RELEASE_VERSION" --pattern "$ARCHIVE"
+          echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
+      - name: Verify release package before authentication
+        env:
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+          RELEASE_SHA256: ${{ inputs.sha256 }}
+        run: node scripts/verify-release-hash.mjs
+      - name: Authenticate to Chrome Web Store with OIDC
+        id: google-auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          create_credentials_file: false
+          export_environment_variables: false
+      - name: Upload package and submit for Chrome Web Store review
+        timeout-minutes: 15
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_SHA256: ${{ inputs.sha256 }}
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: node scripts/publish-chrome-web-store.mjs
