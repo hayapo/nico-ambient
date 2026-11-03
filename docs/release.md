@@ -43,8 +43,6 @@ CIとReleaseのビルドでは、Node.js・pnpmの準備後、依存インスト
 
 Repository Settings → Environments → `chrome-web-store` → Environment variablesに以下を登録します（Secretsではありません）。現在`release-approval`に登録済みなら同じ値をコピーしてください。提出ジョブの変更を反映した後、`release-approval`側のストア用Variablesは削除できます。`release-approval`のRequired reviewers設定はそのまま残します。
 
-`google-github-actions/auth`が`workload_identity_provider`未指定で失敗する場合は、`chrome-web-store` Environmentに`GCP_WORKLOAD_IDENTITY_PROVIDER`がEnvironment variableとして登録されているか確認してください。`release-approval`側にだけ登録されていると、提出ジョブからは参照できません。値はProvider名を含む完全なリソース名です。
-
 | 変数 | 値 |
 | --- | --- |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/github` |
