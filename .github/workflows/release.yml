@@ -1,7 +1,6 @@
 name: Release
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -9,8 +8,10 @@ concurrency:
   cancel-in-progress: false
 jobs:
   checks:
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/ci.yml
   publish:
+    if: github.ref == 'refs/heads/main'
     needs: checks
     outputs:
       version: ${{ steps.release.outputs.version }}
@@ -67,6 +68,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
   publish-chrome-web-store:
+    if: github.ref == 'refs/heads/main'
     needs: publish
     permissions:
       contents: read

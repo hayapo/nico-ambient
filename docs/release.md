@@ -47,10 +47,10 @@ Repository Settings → Environments → `chrome-web-store` → Environment vari
 
 | 変数 | 値 |
 | --- | --- |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/github` |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | GCPのWorkload Identity Provider |
 | `GCP_SERVICE_ACCOUNT` | Chrome Web Storeのアカウントに登録したサービスアカウントのメールアドレス |
 | `CWS_PUBLISHER_ID` | ストアのパブリッシャーID |
-| `CWS_EXTENSION_ID` | `fpkipkpjhcencmbefkhjmhgnigocjknn` |
+| `CWS_EXTENSION_ID` | Chrome Web Storeで対象拡張機能に割り当てられたID |
 
 Google CloudでChrome Web Store APIを有効化し、GitHub OIDC用Workload Identity Providerとサービスアカウントの`roles/iam.workloadIdentityUser`バインディングを設定してください。ProviderのAttribute conditionsで、現在使っている数値IDを保ったままEnvironment値を下記のようにします（`REPOSITORY_ID`と`OWNER_ID`はGitHubの数値IDに置き換えます）。既存の追加制約がある場合は残してください。
 
