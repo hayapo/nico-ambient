@@ -62,7 +62,9 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-`pnpm dev`は`dist/`を監視ビルドします。開発版をブラウザーに読み込んだ後、ソース変更時は拡張機能を再読み込みしてください。コンテンツスクリプトの変更を反映するには、視聴ページも再読み込みします。
+`pnpm dev`は`dist-dev/`を開発版として監視ビルドします。`dist-dev/`には名前・アイコン・設定UIに`[DEV]`表示が付きます。本番版の`dist/`とは別に出力されるため、両方をブラウザーへ読み込んで区別できます。開発版をブラウザーに読み込んだ後、ソース変更時は拡張機能を再読み込みしてください。コンテンツスクリプトの変更を反映するには、視聴ページも再読み込みします。
+
+一度だけ開発版をビルドする場合は`pnpm build:dev`を実行します。`pnpm build`は本番版を`dist/`へ生成します。
 
 主なコマンド：
 
@@ -71,6 +73,7 @@ pnpm dev
 | `pnpm check` | Biomeのlint・format確認 |
 | `pnpm typecheck` | TypeScriptの型チェック |
 | `pnpm build` | 型チェックと本番ビルド |
+| `pnpm build:dev` | 開発版を`dist-dev/`へビルド |
 | `pnpm test` | ビルドとNode.jsテスト |
 | `pnpm test:node` | ビルド済みの成果物に対してNode.jsテストを実行 |
 | `pnpm test:browser:install` | 5プロジェクト用のブラウザーとLinuxの実行依存を導入 |
@@ -130,6 +133,14 @@ pnpm exec playwright test --project=firefox --project=webkit
 - `tests/`: Node.jsとPlaywrightによるテスト
 
 詳細な設計は[`docs/nico-ambient.md`](docs/nico-ambient.md)、テストの分類と個別の実行方法は[`tests/README.md`](tests/README.md)を参照してください。
+
+## Security Policy
+
+脆弱性を見つけた場合は、公開Issueに詳細を書かず、GitHubの[非公開脆弱性報告](https://github.com/hayapo/nico-ambient/security/advisories/new)から報告してください。詳しくは[Security Policy](SECURITY.md)を参照してください。
+
+## Privacy Policy
+
+この拡張機能が扱う情報とブラウザー内での設定保存については[Privacy Policy](PRIVACY.md)を参照してください。
 
 ## ライセンス
 

@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 test('adds controls, draws video edges, and persists settings', async ({
   page,
 }) => {
-  const toggle = page.getByRole('button', { name: 'アンビエントライトの設定' });
+  const toggle = page.getByRole('button', { name: 'Nico Ambientの設定' });
   await expect(toggle).toHaveCount(1);
   await expect(
     page.locator('#controls [data-nico-ambient=settings]'),
@@ -32,7 +32,22 @@ test('adds controls, draws video edges, and persists settings', async ({
     ]);
   await expect(light).toHaveCSS('pointer-events', 'none');
   await toggle.click();
-  await page.getByLabel('有効にする').uncheck();
+  await expect(page.locator('#panel strong')).toHaveText('Nico Ambientの設定');
+  await expect(
+    page.getByText('動画の色をプレイヤーの周囲に表示します。'),
+  ).toBeVisible();
+  await expect(page.locator('.brand-icon')).toHaveAttribute(
+    'src',
+    /^data:image\/png/,
+  );
+  const lightSwitch = page.getByRole('switch', { name: 'ライトを有効にする' });
+  await expect(lightSwitch).toHaveAttribute(
+    'aria-describedby',
+    'enabled-description',
+  );
+  await lightSwitch.focus();
+  await expect(lightSwitch).toBeFocused();
+  await page.keyboard.press('Space');
   await expect(light).toBeHidden();
   await expect
     .poll(() =>
@@ -43,7 +58,7 @@ test('adds controls, draws video edges, and persists settings', async ({
       ),
     )
     .toBe(false);
-  await page.getByLabel('有効にする').check();
+  await page.keyboard.press('Space');
   await expect(light).toBeVisible();
   await page.getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');

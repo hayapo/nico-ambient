@@ -1,0 +1,41 @@
+name: Maintainer roadmap item
+description: Track a feature being implemented or considered by the repository owner.
+title: "[Roadmap]: "
+labels: [roadmap]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is intended for repository maintainers to track planned work. Use Feature request to suggest an idea as a community member.
+  - type: dropdown
+    id: status
+    attributes:
+      label: Planning status
+      options:
+        - Considering
+        - Planned
+        - In progress
+        - Blocked
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What problem does this work address and what outcome is expected?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and acceptance criteria
+      description: List the work and conditions that will mark it complete.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: References and notes
+      description: Related issues, PRs, design notes, or dependencies.
+    validations:
+      required: false

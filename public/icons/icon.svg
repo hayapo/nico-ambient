@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <title>Nico Ambient</title>
+  <defs>
+    <linearGradient id="bg" x1="13" y1="9" x2="115" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#203D60"/>
+      <stop offset="1" stop-color="#101B35"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="31" y1="30" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#294B68"/>
+      <stop offset="1" stop-color="#14263F"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="27" y1="64" x2="101" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#39D6FF"/>
+      <stop offset=".52" stop-color="#5DE6CE"/>
+      <stop offset="1" stop-color="#A875FF"/>
+    </linearGradient>
+    <linearGradient id="play" x1="45" y1="46" x2="77" y2="83" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0FDFF"/>
+      <stop offset="1" stop-color="#72E5FF"/>
+    </linearGradient>
+    <radialGradient id="ambient" cx="0" cy="0" r="1" gradientTransform="matrix(0 71 -76 0 64 63)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#55DFFF" stop-opacity=".42"/>
+      <stop offset=".52" stop-color="#638CFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#A875FF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="7" y="11" width="114" height="108" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="11"/>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#bg)"/>
+  <rect width="128" height="128" rx="30" fill="url(#ambient)"/>
+  <path d="M30 67c0-17.7 14.3-32 32-32s32 14.3 32 32-14.3 32-32 32-32-14.3-32-32Z" stroke="url(#glow)" stroke-width="17" opacity=".68" filter="url(#softGlow)"/>
+  <path d="m51 32-10-12m36 12 10-12" stroke="#B7D7F0" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="40" cy="19" r="3" fill="#66DFFF"/>
+  <circle cx="87" cy="19" r="3" fill="#B18CFF"/>
+  <rect x="17" y="30" width="94" height="70" rx="17" fill="url(#screen)" stroke="url(#glow)" stroke-width="4"/>
+  <rect x="24" y="37" width="66" height="56" rx="11" fill="#10243B" stroke="#D6F8FF" stroke-opacity=".32" stroke-width="1.5"/>
+  <path d="M42 49.8c0-2.2 2.4-3.5 4.3-2.3l27 16.2a2.7 2.7 0 0 1 0 4.6l-27 16.2a2.7 2.7 0 0 1-4.3-2.3V49.8Z" fill="url(#play)"/>
+  <circle cx="100" cy="51" r="4" fill="url(#glow)"/>
+  <circle cx="100" cy="65" r="3" fill="#BBD7ED" fill-opacity=".72"/>
+  <circle cx="100" cy="78" r="3" fill="#BBD7ED" fill-opacity=".42"/>
+  <path d="M60 100v7m-13 3h26" stroke="#B7D7F0" stroke-width="4" stroke-linecap="round"/>
+  <path d="M48 110h24" stroke="url(#glow)" stroke-width="3" stroke-linecap="round"/>
+</svg>

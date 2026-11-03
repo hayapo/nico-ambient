@@ -1,0 +1,43 @@
+name: Verify release integrity retry
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      sha256: ${{ steps.package.outputs.sha256 }}
+      artifact: ${{ steps.package.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+          cache: pnpm
+      - name: Setup Aikido Safe Chain
+        uses: ./.github/actions/setup-safe-chain
+      - run: pnpm install --frozen-lockfile
+      - name: Create and verify a test ZIP
+        id: package
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/integrity-dist"
+          printf '{"version":"0.0.0"}\n' > "$RUNNER_TEMP/integrity-dist/manifest.json"
+          (cd "$RUNNER_TEMP/integrity-dist" && zip "$GITHUB_WORKSPACE/integrity.zip" manifest.json)
+          SHA256=$(node scripts/verify-release-archive.mjs integrity.zip "$RUNNER_TEMP/integrity-dist")
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "artifact=integrity-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.package.outputs.artifact }}
+          path: integrity.zip
+          if-no-files-found: error
+          retention-days: 7
+  verify:
+    needs: prepare
+    uses: ./.github/workflows/verify-release-integrity-consumer.yml
+    with:
+      sha256: ${{ needs.prepare.outputs.sha256 }}
+      artifact: ${{ needs.prepare.outputs.artifact }}
