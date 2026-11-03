@@ -112,6 +112,13 @@ test('keeps popup scopes excluded while applying explicit page control roles', (
         <div data-scope="menu"><section class="bg-c_layer.surfaceHighEm" id="menu-content"></section></div>
         <div data-scope="hover-card"><section class="bg-c_layer.surfaceHighEm" id="hover-content"></section></div>
         <div data-scope="dialog"><section class="bg-c_layer.surfaceHighEm" id="dialog-content"></section></div>
+        <div data-scope="combobox" data-part="root" id="combobox-root" class="bg-c_layer.surfaceHighEm">
+          <input data-part="input" id="combobox-input" class="bg-c_layer.surfaceHighEm">
+          <div data-part="control" id="combobox-control" class="bg-c_layer.surfaceHighEm"></div>
+          <div data-scope="combobox" data-part="positioner" id="combobox-positioner">
+            <div data-scope="combobox" data-part="content" id="combobox-content" class="bg-c_layer.surfaceHighEm"></div>
+          </div>
+        </div>
         <div data-nvpc-scope="watch-floating-panel" data-nvpc-part="floating">
           <section class="bg-c_layer.surfaceHighEm" id="floating-content"></section>
         </div>
@@ -149,6 +156,8 @@ test('keeps popup scopes excluded while applying explicit page control roles', (
       'hover-content',
       'dialog-content',
       'floating-content',
+      'combobox-positioner',
+      'combobox-content',
       'popup-trigger',
       'popup-tag',
     ])
@@ -157,6 +166,19 @@ test('keeps popup scopes excluded while applying explicit page control roles', (
         false,
         id,
       );
+
+    assert.equal(
+      document.querySelector('#combobox-root').getAttribute(attr),
+      'surface',
+    );
+    assert.equal(
+      document.querySelector('#combobox-input').getAttribute(attr),
+      'clear',
+    );
+    assert.equal(
+      document.querySelector('#combobox-control').getAttribute(attr),
+      'clear',
+    );
 
     backdrop.update(document.body, false);
     for (const id of [

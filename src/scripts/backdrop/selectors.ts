@@ -10,6 +10,8 @@ export const excludedBackdropSelector = [
   '[data-scope="menu"]',
   '[data-scope="hover-card"]',
   '[data-scope="dialog"]',
+  '[data-scope="combobox"][data-part="positioner"]',
+  '[data-scope="combobox"][data-part="content"]',
   commandPopupSelector,
 ].join(', ');
 export const excludedPopupContainerSelector = [
@@ -17,6 +19,8 @@ export const excludedPopupContainerSelector = [
   '[data-scope="menu"]:not([data-part="trigger"])',
   '[data-scope="hover-card"]:not([data-part="trigger"])',
   '[data-scope="dialog"]:not([data-part="trigger"])',
+  '[data-scope="combobox"][data-part="positioner"]',
+  '[data-scope="combobox"][data-part="content"]',
   commandPopupSelector,
 ].join(', ');
 export const ambientSurfaceSelector = [
