@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '26'
+          package-manager-cache: false
       - uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.artifact }}
