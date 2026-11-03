@@ -1,0 +1,33 @@
+name: Validate release PR
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+jobs:
+  validate:
+    # prepare-release creates and updates release PRs with this title format.
+    if: startsWith(github.event.pull_request.title, 'Release v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+      - name: Setup Aikido Safe Chain
+        uses: ./.github/actions/setup-safe-chain
+      - run: pnpm install --frozen-lockfile
+      - name: Validate release notes and tag
+        run: |
+          set -euo pipefail
+          VERSION=$(node scripts/version.mjs)
+          node scripts/release-notes.mjs validate "$VERSION"
+          TAG="v$VERSION"
+          if git show-ref --verify --quiet "refs/tags/$TAG"; then
+            echo "Release tag $TAG already exists; increment the version before merging."
+            exit 1
+          fi
