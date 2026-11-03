@@ -132,7 +132,7 @@ pnpm exec playwright test --project=firefox --project=webkit
 - `public/manifest.json`: 拡張機能のManifest
 - `tests/`: Node.jsとPlaywrightによるテスト
 
-詳細な設計は[`docs/nico-ambient.md`](docs/nico-ambient.md)、テストの分類と個別の実行方法は[`tests/README.md`](tests/README.md)を参照してください。
+テストの分類と個別の実行方法は[`tests/README.md`](tests/README.md)を参照してください。
 
 ## Security Policy
 
