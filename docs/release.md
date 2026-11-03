@@ -6,17 +6,18 @@
 
 - mainとdevelopをGitHubに作成してください。mainの直接pushを禁止し、PRとCIのchecksジョブを必須にしてください。リリース承認はPRではなくEnvironmentで行うため、mainのブランチルールでPR承認を必須にする必要はありません。
 - Repository Settings → Environmentsで`release-approval` Environmentを作り、Required reviewersにリリースを承認する人を指定してください。単独運用で自分が承認する場合はPrevent self-reviewを有効にしないでください。設定しない場合、公開ジョブは承認待ちにならず続行します。
+- 同じ画面で`chrome-web-store` Environmentを作り、Deployment branches and tagsをSelected branches and tagsにして`main`だけを許可してください。Required reviewersは設定しません。Chrome Web Storeへの提出はリリース公開承認後に自動で進みます。
 - developへのバージョン更新pushをトークンの所有者が行えるよう、ブランチ保護と権限を設定してください。
 
 ## リリース
 
 1. ActionsのPrepare releaseを開き、実行ブランチにdevelopを選びます。
 2. major・minor・patchを選びます。patchは以前の計画のminor-minorに相当します。
-3. package.jsonとpublic/manifest.jsonを同時更新するコミットがdevelopに追加され、main向けPRが作成されます。
-4. `GITHUB_TOKEN`でPRを作成するため、PRのCIはGitHubの承認待ちになります。Actions画面またはPRの表示からワークフローを承認すると、CIが実行されます。既存のリリースPRがある場合はバージョンを再更新せず、タイトルを同期します。developへの追加コミットは同じPRに反映されます。
+3. package.jsonとpublic/manifest.jsonを同時更新し、`docs/releases/vX.Y.Z.md`にリリースノートのテンプレートを追加するコミットがdevelopに追加され、main向けPRが作成されます。
+4. `GITHUB_TOKEN`でPRを作成するため、PRのCIはGitHubの承認待ちになります。Actions画面またはPRの表示からワークフローを承認すると、CIが実行されます。main向けPRでは`docs/releases/vX.Y.Z.md`のOverviewを人が編集してください。テンプレートのまま、空欄、バージョン不一致、または同じバージョンのタグが既にある場合はCIが失敗します。既存のリリースPRがある場合はバージョンを再更新せず、タイトルを同期します。developへの追加コミットは同じPRに反映されます。
 5. CI成功を確認し、リリースPRをmainへマージします。継続的にdevelopからmainへマージするため、マージコミットを使用してください。
-6. ReleaseワークフローがCIを再実行します。成功すると`release-approval` EnvironmentのRequired reviewersによる承認待ちになります。
-7. ActionsのRelease実行で公開ジョブをレビュー・承認します。承認後、`vX.Y.Z`タグ、`nico-ambient-X.Y.Z.zip`、GitHub Releaseを作成します。続けて専用ワークフロー`publish-chrome-web-store.yml`を呼び出し、GitHub Releaseから同じZIPを取得してChrome Web Storeへアップロード・審査提出します。ストア提出ジョブも`release-approval`を使用するため、承認待ちになった場合はActions画面で承認してください。Googleの審査承認後にストアで公開されます。ワークフローは審査完了までは待ちません。
+6. ReleaseワークフローがCIを再実行し、ノートとタグの整合性も公開承認より前に確認します。成功すると`release-approval` EnvironmentのRequired reviewersによる承認待ちになります。
+7. ActionsのRelease実行で公開ジョブをレビュー・承認します。承認後、`vX.Y.Z`タグ、`nico-ambient-X.Y.Z.zip`、GitHub Releaseを作成します。リリース本文にはOverview、前回タグからのコミット一覧（マージコミットと自動バージョン準備コミットを除外）、全差分へのリンクが入ります。続けて専用ワークフロー`publish-chrome-web-store.yml`を呼び出し、GitHub Releaseから同じZIPを取得してChrome Web Storeへアップロード・審査提出します。Googleの審査承認後にストアで公開されます。ワークフローは審査完了までは待ちません。
 
 CIはバージョン一致、Biome、型チェック・ビルド、Node.jsテスト（ZIP検証を含む）、5ブラウザープロジェクトを確認します。WebKitは現在ポスター画像による描画検証であり、動画ストリームの検証ではありません。
 
@@ -24,7 +25,7 @@ CIはバージョン一致、Biome、型チェック・ビルド、Node.jsテス
 
 失敗したRelease実行のRe-run jobsで再実行してください。バージョンは再採番しません。同じタグが同じコミットを指す場合だけ再利用し、別コミットを指す場合は停止します。新規ZIP・既存ZIPともに、再ビルドした`dist`と内容が一致した場合だけ使用します。再実行でも既存の同名ZIPは置き換えません。Chrome Web Storeへの提出だけが失敗した場合は、Release実行のRe-run failed jobsで失敗したジョブだけを再実行できます。成功済みのビルド・GitHub Release作成をやり直す必要はありません。
 
-mainの初回pushでもReleaseが実行されます。必要な設定と公開内容を確認してからmainへpushしてください。
+mainのpushでReleaseが実行されます。タグ作成前にリリースノートの存在・内容・バージョン一致を再検証します。必要な設定と公開内容を確認してからmainへpushしてください。同じタグと同じコミットでの再実行は従来どおり再利用し、既存ZIPのハッシュ・内容検証も維持します。
 
 ## 依存パッケージの保護
 
@@ -38,9 +39,9 @@ CIとReleaseのビルドでは、Node.js・pnpmの準備後、依存インスト
 
 `.github/workflows/release.yml`はCI・ビルド・タグ・GitHub Releaseの作成を担当し、成功後に`.github/workflows/publish-chrome-web-store.yml`を`workflow_call`で呼び出します。Chrome側は公開済みのZIPをダウンロードし、OIDC認証・アップロード・審査提出だけを担当します。再ビルドやGitHub Releaseへの書き込みは行いません。
 
-再利用ワークフローでもOIDCの`workflow_ref`は呼び出し元の`release.yml`を表すため、前述のGoogle Cloud側の条件とEnvironment変数は変更不要です。呼び出し先は別の`job_workflow_ref`クレームで識別されます。詳細は[GitHubのOIDCと再利用ワークフローの説明](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-with-reusable-workflows)を参照してください。
+再利用ワークフローでもOIDCの`workflow_ref`は呼び出し元の`release.yml`を表し、呼び出し先は別の`job_workflow_ref`クレームで識別されます。提出ジョブのEnvironmentを`chrome-web-store`に分けるため、Google CloudのProvider条件とサービスアカウントのWorkload Identity UserバインディングのEnvironment条件を`release-approval`から`chrome-web-store`へ更新してください。リポジトリID、所有者ID、main ref、`release.yml@refs/heads/main`の制約は維持してください。subjectを`repo:hayapo/nico-ambient:environment:release-approval`で限定している場合は、subjectも`repo:hayapo/nico-ambient:environment:chrome-web-store`へ変更します。環境を分ける前に更新しないとOIDC認証に失敗します。詳細は[GitHubのOIDCと再利用ワークフローの説明](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-with-reusable-workflows)を参照してください。
 
-`release-approval` EnvironmentのVariablesに以下を登録します（Secretsではありません）。
+Repository Settings → Environments → `chrome-web-store` → Environment variablesに以下を登録します（Secretsではありません）。現在`release-approval`に登録済みなら同じ値をコピーしてください。提出ジョブの変更を反映した後、`release-approval`側のストア用Variablesは削除できます。`release-approval`のRequired reviewers設定はそのまま残します。
 
 | 変数 | 値 |
 | --- | --- |
@@ -49,7 +50,15 @@ CIとReleaseのビルドでは、Node.js・pnpmの準備後、依存インスト
 | `CWS_PUBLISHER_ID` | ストアのパブリッシャーID |
 | `CWS_EXTENSION_ID` | `fpkipkpjhcencmbefkhjmhgnigocjknn` |
 
-Google CloudでChrome Web Store APIを有効化し、GitHub OIDC用Workload Identity Providerとサービスアカウントの`roles/iam.workloadIdentityUser`バインディングを設定してください。Providerの条件はリポジトリの数値IDと所有者の数値IDに加え、`refs/heads/main`、`repo:hayapo/nico-ambient:environment:release-approval`、`hayapo/nico-ambient/.github/workflows/release.yml@refs/heads/main`に制限します。サービスアカウントはChrome Web Store Developer DashboardのAccountにも登録する必要があります。
+Google CloudでChrome Web Store APIを有効化し、GitHub OIDC用Workload Identity Providerとサービスアカウントの`roles/iam.workloadIdentityUser`バインディングを設定してください。ProviderのAttribute conditionsで、現在使っている数値IDを保ったままEnvironment値を下記のようにします（`REPOSITORY_ID`と`OWNER_ID`はGitHubの数値IDに置き換えます）。既存の追加制約がある場合は残してください。
+
+```text
+assertion.repository_id == "REPOSITORY_ID" && assertion.repository_owner_id == "OWNER_ID" && assertion.ref == "refs/heads/main" && assertion.sub == "repo:hayapo/nico-ambient:environment:chrome-web-store" && assertion.workflow_ref == "hayapo/nico-ambient/.github/workflows/release.yml@refs/heads/main"
+```
+
+サービスアカウントのIAM bindingにもEnvironment subjectやattribute conditionを設定している場合は、`release-approval`から`chrome-web-store`へ更新してください。subjectで限定している値は`repo:hayapo/nico-ambient:environment:chrome-web-store`です。古いEnvironment名が残っているとOIDC認証に失敗します。サービスアカウントはChrome Web Store Developer DashboardのAccountにも登録する必要があります。
+
+ワークフロー変更をGitHubへ反映する前に失敗した実行は、再実行しても古いコミット上の定義を使います。修正後のReleaseは新しいmain pushで起動してください。
 
 `google-github-actions/auth@v3`で短命のアクセストークンを取得します。サービスアカウントキーやリフレッシュトークンの保存は不要です。`id-token: write`はChrome Web Store用ワークフローの呼び出しと、その提出ジョブにのみ付与しています。GitHub Release作成ジョブには付与しません。
 

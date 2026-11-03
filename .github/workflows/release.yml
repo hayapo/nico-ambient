@@ -40,6 +40,8 @@ jobs:
           set -euo pipefail
           VERSION=$(node scripts/version.mjs)
           TAG="v$VERSION"
+          node scripts/release-notes.mjs validate "$VERSION"
+          node scripts/release-notes.mjs render "$VERSION" > release-notes.md
           test "$(node -p "JSON.parse(require('fs').readFileSync('dist/manifest.json')).version")" = "$VERSION"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA"
@@ -49,7 +51,7 @@ jobs:
           fi
           ARCHIVE="nico-ambient-$VERSION.zip"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --verify-tag --draft --title "$TAG" --generate-notes
+            gh release create "$TAG" --verify-tag --draft --title "$TAG" --notes-file release-notes.md
           fi
           ASSETS=$(gh release view "$TAG" --json assets --jq '.assets[].name')
           if grep -Fxq "$ARCHIVE" <<< "$ASSETS"; then
