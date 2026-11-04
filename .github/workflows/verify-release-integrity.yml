@@ -10,9 +10,9 @@ jobs:
       sha256: ${{ steps.package.outputs.sha256 }}
       artifact: ${{ steps.package.outputs.artifact }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '26'
           cache: pnpm
@@ -29,7 +29,7 @@ jobs:
           SHA256=$(node scripts/verify-release-archive.mjs integrity.zip "$RUNNER_TEMP/integrity-dist")
           echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
           echo "artifact=integrity-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ steps.package.outputs.artifact }}
           path: integrity.zip
